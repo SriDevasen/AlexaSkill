@@ -10,14 +10,12 @@ using ADP.SC.Modules.AlexaSkill.Web.Models;
 
 namespace ADP.SC.Modules.AlexaSkill.Web.SpeechAssets
 {
-    public class HRSpeechlet : SpeechletAsync
-    {
-        ServiceOfferings _serviceofferings;
-        ServiceTypes _servicetypes;
+    public class HRSpeechlet //: SpeechletAsync
+    {        
         private const string ServiceOfferingsIntent = "ServiceOfferingsIntent";
         private const string ServiceTypesIntent = "ServiceTypesIntent";
      
-        public override Task<SpeechletResponse> OnLaunchAsync(LaunchRequest launchRequest, Session session)
+        public Task<SpeechletResponse> OnLaunchAsync(LaunchRequest launchRequest, Session session)
         {
             return Task.FromResult(GetWelcomeResponse());
         }
@@ -28,7 +26,7 @@ namespace ADP.SC.Modules.AlexaSkill.Web.SpeechAssets
             return BuildSpeechletResponse("Welcome", output, false);
         }
 
-        public async override Task<SpeechletResponse> OnIntentAsync(IntentRequest intentRequest, Session session)       
+        public async Task<SpeechletResponse> OnIntentAsync(IntentRequest intentRequest, Session session)       
         {
             // Get intent from the request object.
             var intent = intentRequest.Intent;
@@ -36,71 +34,45 @@ namespace ADP.SC.Modules.AlexaSkill.Web.SpeechAssets
 
             // Note: If the session is started with an intent, no welcome message will be rendered;
             // rather, the intent specific response will be returned.
-            if (ServiceOfferingsIntent.Equals(intentName))
+            if (ServiceOfferingsIntent.Equals(intentName) || ServiceTypesIntent.Equals(intentName))
             {
-                return await GetServiceOfferingsResponse(intent, session);
-            }
-            if (ServiceTypesIntent.Equals(intentName))
-            {
-                return await GetServiceOfferingsResponse(intent, session);
-            }
+                return await GetIntentResponse(intent, session);
+            }           
 
             throw new SpeechletException("Invalid Intent");
         }
 
-        public override Task OnSessionStartedAsync(SessionStartedRequest sessionStartedRequest, Session session)
+        public Task OnSessionStartedAsync(SessionStartedRequest sessionStartedRequest, Session session)
         {
             return Task.FromResult(0);
         }
 
-        public override Task OnSessionEndedAsync(SessionEndedRequest sessionEndedRequest, Session session)
+        public Task OnSessionEndedAsync(SessionEndedRequest sessionEndedRequest, Session session)
         {
             return Task.FromResult(0);
         }
 
-        private async Task<SpeechletResponse> GetServiceOfferingsResponse(Intent intent, Session session)
+        private async Task<SpeechletResponse> GetIntentResponse(Intent intent, Session session)
         {
             // Create response
-            string output;          
-            var endSession = false;
+            const bool endSession = false;
             // Retrieve and return the menu response
-            _serviceofferings = await LoadServiceOfferings();
-            output = _serviceofferings.ToString();
+            var response = await LoadIntentData(intent.Name);
+            var output = response;
             // Return response, passing flag for whether to end the conversation
             return BuildSpeechletResponse(intent.Name, output, endSession);
         }
-        private async Task<SpeechletResponse> GetServiceTypesResponse(Intent intent, Session session)
+
+        private async Task<string> LoadIntentData(string intentName)
         {
-            // Create response
-            string output;
-            var endSession = false;
-            // Retrieve and return the menu response
-            _servicetypes = await LoadServiceTypes();
-            output = _servicetypes.ToString();
-            // Return response, passing flag for whether to end the conversation
-            return BuildSpeechletResponse(intent.Name, output, endSession);
-        }
-        
-        private async Task<ServiceOfferings> LoadServiceOfferings()
-        {
-            var filePath = HttpContext.Current.Server.MapPath("/App_Data/ServiceOfferings.json");
+            var filePath = HttpContext.Current.Server.MapPath($"/App_Data/{intentName}.json");
             using (var reader = new StreamReader(filePath))
             {
                 var json = await reader.ReadToEndAsync();
-                return JsonConvert.DeserializeObject<ServiceOfferings>(json);
+                return json;
             }
         }
-
-        private async Task<ServiceTypes> LoadServiceTypes()
-        {
-            var filePath = HttpContext.Current.Server.MapPath("/App_Data/ServiceTypes.json");
-            using (var reader = new StreamReader(filePath))
-            {
-                var json = await reader.ReadToEndAsync();
-                return JsonConvert.DeserializeObject<ServiceTypes>(json);
-            }
-        }
-
+    
         /// <summary>
         /// Creates and returns the visual and spoken response with shouldEndSession flag
         /// </summary>
