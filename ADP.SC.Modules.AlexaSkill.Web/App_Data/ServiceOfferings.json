@@ -1,0 +1,17 @@
+﻿{
+  "initialDate": "2017-03-03T00:00:00+00:00",
+  "ServiceOfferings": [
+    {
+      "ServiceName": "Payroll Services"
+    },
+    {
+      "ServiceName": "HCM"
+    },
+    {
+      "ServiceName": "Benefits"
+    },
+    {
+      "ServiceName": "Retirement"
+    }
+  ]
+}

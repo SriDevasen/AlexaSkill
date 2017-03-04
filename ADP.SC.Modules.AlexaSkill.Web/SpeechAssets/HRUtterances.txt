@@ -1,0 +1,17 @@
+﻿ServiceOfferingsIntent what are services
+ServiceOfferingsIntent what are the products available
+ServiceOfferingsIntent product types
+ServiceOfferingsIntent available services
+ServiceOfferingsIntent products services
+
+ServiceTypesIntent popular
+ServiceTypesIntent top courses
+
+AMAZON.CancelIntent cease everything
+AMAZON.CancelIntent stop everything
+
+AMAZON.StopIntent abort getting more information
+
+AMAZON.HelpIntent give me guidance
+AMAZON.HelpIntent helpful information
+AMAZON.HelpIntent support information
